@@ -1,6 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const SYSTEM_PROMPT = `당신은 네이버 블로그 전문 작가입니다. 아래 규칙을 반드시 지켜주세요:
 
@@ -27,6 +25,7 @@ export interface GeneratedPost {
 }
 
 export async function generateBlogPost(
+  apiKey: string,
   businessName: string,
   businessDescription: string | null,
   category: string | null,
@@ -39,17 +38,22 @@ ${businessDescription ? `설명: ${businessDescription}` : ""}
 
 자연스럽고 매력적인 블로그 글을 JSON 형식으로 작성해주세요.`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4096,
-    temperature: 0.9,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userPrompt }],
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+    systemInstruction: SYSTEM_PROMPT,
   });
 
-  const text = message.content[0].type === "text" ? message.content[0].text : "";
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+    generationConfig: {
+      temperature: 0.9,
+      maxOutputTokens: 4096,
+    },
+  });
 
-  // JSON 파싱 - 코드블록 안에 있을 수 있음
+  const text = result.response.text();
+
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error("AI 응답에서 JSON을 찾을 수 없습니다");

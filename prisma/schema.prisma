@@ -41,6 +41,8 @@ model User {
   email         String?    @unique
   emailVerified DateTime?
   image         String?
+  aiProvider    String?    @default("gemini")
+  aiApiKey      String?
   accounts      Account[]
   sessions      Session[]
   businesses    Business[]

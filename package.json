@@ -12,24 +12,24 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "next": "15.3.2",
+    "@auth/prisma-adapter": "^2.7.4",
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^6.6.0",
+    "@tailwindcss/postcss": "^4",
+    "next": "^16.1.6",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next-auth": "^5.0.0-beta.25",
-    "@auth/prisma-adapter": "^2.7.4",
-    "@prisma/client": "^6.6.0",
-    "@anthropic-ai/sdk": "^0.39.0",
-    "tailwindcss": "^4",
-    "@tailwindcss/postcss": "^4"
+    "tailwindcss": "^4"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prisma": "^6.6.0",
     "eslint": "^9",
-    "eslint-config-next": "15.3.2",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-next": "^16.1.6",
+    "prisma": "^6.6.0",
+    "typescript": "^5"
   }
 }

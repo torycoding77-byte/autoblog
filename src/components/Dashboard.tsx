@@ -6,6 +6,7 @@ import BusinessForm from "./BusinessForm";
 import BusinessList from "./BusinessList";
 import PostList from "./PostList";
 import SchedulePanel from "./SchedulePanel";
+import SettingsPanel from "./SettingsPanel";
 
 interface Business {
   id: string;
@@ -31,8 +32,9 @@ interface Post {
 export default function Dashboard({ user }: { user: { name?: string | null; image?: string | null } }) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [activeTab, setActiveTab] = useState<"businesses" | "generate" | "schedule">("businesses");
+  const [activeTab, setActiveTab] = useState<"businesses" | "generate" | "schedule" | "settings">("businesses");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchBusinesses();
@@ -68,16 +70,20 @@ export default function Dashboard({ user }: { user: { name?: string | null; imag
 
   async function handleGenerate(businessId: string, count: number) {
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/posts/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ businessId, count }),
       });
+      const data = await res.json();
       if (res.ok) {
-        const newPosts = await res.json();
-        setPosts((prev) => [...newPosts, ...prev]);
+        setPosts((prev) => [...data.posts, ...prev]);
         setActiveTab("schedule");
+      } else {
+        setError(data.error || "생성에 실패했습니다.");
+        if (data.error?.includes("API 키")) setActiveTab("settings");
       }
     } finally {
       setLoading(false);
@@ -118,6 +124,7 @@ export default function Dashboard({ user }: { user: { name?: string | null; imag
             { key: "businesses" as const, label: "내 업체 관리" },
             { key: "generate" as const, label: "글 생성" },
             { key: "schedule" as const, label: "예약 발행" },
+            { key: "settings" as const, label: "설정" },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -152,9 +159,12 @@ export default function Dashboard({ user }: { user: { name?: string | null; imag
             ) : (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4">AI 블로그 글 생성</h2>
-                <p className="text-sm text-gray-500 mb-6">
-                  업체를 선택하면 AI가 자동으로 블로그 글을 생성합니다.
+                <p className="text-sm text-gray-500 mb-4">
+                  업체를 선택하면 AI가 자동으로 블로그 글을 생성합니다. (하루 3개 무료)
                 </p>
+                {error && (
+                  <div className="bg-red-50 text-red-600 text-sm rounded-lg p-3 mb-4">{error}</div>
+                )}
                 <div className="grid gap-4">
                   {businesses.map((biz) => (
                     <div
@@ -188,6 +198,8 @@ export default function Dashboard({ user }: { user: { name?: string | null; imag
             <PostList posts={posts} />
           </div>
         )}
+
+        {activeTab === "settings" && <SettingsPanel />}
       </main>
     </div>
   );
