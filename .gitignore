@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env.local
+*.db
+*.db-journal
+.vercel
+__pycache__/
+*.pyc
+.bkit-memory.json
